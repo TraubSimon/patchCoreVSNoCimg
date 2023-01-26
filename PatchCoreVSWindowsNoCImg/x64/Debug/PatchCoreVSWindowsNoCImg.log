@@ -1,0 +1,101 @@
+﻿  PatchCoreVSWindowsNoCImg.cpp
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 3 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 4 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(99,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(100,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(100,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(100,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(100,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(100,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 3 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(100,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(101,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(101,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(102,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(102,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(263,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(263,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(263,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(263,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(263,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 3 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(263,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(264,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(264,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(264,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(264,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(267,41): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(293,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(293,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(293,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(293,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(293,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 3 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(293,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(294,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(294,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(294,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(294,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(295,41): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(320,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(320,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(320,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(320,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(336,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(336,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(336,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(336,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(342,26): warning C4018: '<': signed/unsigned mismatch
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(365,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(365,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(365,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(365,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(391,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'Eigen::EigenBase<Derived>::Index'
+          with
+          [
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>
+          ]
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(391,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(394,18): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(410,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(410,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(410,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::EigenBase<Derived>::Index'
+          with
+          [
+              Derived=Eigen::Matrix<double,-1,1,0,-1,1>
+          ]
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(410,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(431,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(431,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(441,12): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(466,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 3 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(466,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(466,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 4 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(466,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(467,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 2 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(467,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(467,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 3 has type 'Eigen::Index'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(467,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(468,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'unsigned __int64'
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(468,12): message : consider using '%zi' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(469,12): warning C4477: 'printf' : format string '%i' requires an argument of type 'int', but variadic argument 1 has type 'Eigen::EigenBase<Derived>::Index'
+          with
+          [
+              Derived=Eigen::Matrix<float,-1,1,0,-1,1>
+          ]
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(469,12): message : consider using '%ti' in the format string
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(523,27): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(524,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(565,107): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(730,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(731,48): warning C4244: 'argument': conversion from 'double' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=float
+          ]
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(843,23): warning C4244: '=': conversion from 'std::streamoff' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(845,21): warning C4244: '=': conversion from 'std::streamoff' to 'int', possible loss of data
+C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg\PatchCoreVSWindowsNoCImg.cpp(250): warning C4715: 'loadTfLiteModel': not all control paths return a value
+  PatchCoreVSWindowsNoCImg.vcxproj -> C:\SensoPart\AnomalyDetection\Git\PatchCoreVSWindowsNoCImg\x64\Debug\PatchCoreVSWindowsNoCImg.exe
