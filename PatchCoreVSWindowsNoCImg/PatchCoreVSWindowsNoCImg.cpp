@@ -16,38 +16,38 @@
 #include "tensorflow/lite/model.h"
 #include "tensorflow/lite/string_type.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/optional_debug_tools.h" 
-#include "CImg.h"
-using namespace cimg_library;
+//#include "tensorflow/lite/optional_debug_tools.h" 
+//using namespace cimg_library;
 
 
 
-constexpr int N_NEIGBRHS = 3;
-constexpr float PERCENTILE2 = 1;
-constexpr int N_CORESET_SAMPLES = 10;
+constexpr int iN_NEIGBRHS = 3;
+constexpr float fPERCENTILE2 = 1;
+constexpr int iN_CORESET_SAMPLES = 10;
 
-constexpr int N_PIXELS = 4900;
-constexpr int PATCH_WIDTH = 224;
-constexpr int PATCH_HEIGHT = 224;
-constexpr int N_FEATURES_L0 = 16;
-constexpr int N_FEATURES_L1 = 24;
-constexpr int N_FEATURES_L2 = 24;
-constexpr int N_FEATURES_L3 = 40;
-constexpr int N_FEATURES_L4 = 40;
-constexpr int N_FEATURES_L5 = 40;
-constexpr int N_FEATURES_L6 = 48;
-constexpr int N_FEATURES_L7 = 48;
-constexpr int N_FEATURES_L8 = 96;
-constexpr int N_FEATURES_L9 = 96;
-constexpr int N_FEATURES_L10 = 96;
+constexpr int iN_PIXELS = 4900;
+constexpr int iPATCH_WIDTH = 224;
+constexpr int iPATCH_HEIGHT = 224;
+constexpr int iN_FEATURES_L0 = 16;
+constexpr int iN_FEATURES_L1 = 24;
+constexpr int iN_FEATURES_L2 = 24;
+constexpr int iN_FEATURES_L3 = 40;
+constexpr int iN_FEATURES_L4 = 40;
+constexpr int iN_FEATURES_L5 = 40;
+constexpr int iN_FEATURES_L6 = 48;
+constexpr int iN_FEATURES_L7 = 48;
+constexpr int iN_FEATURES_L8 = 96;
+constexpr int iN_FEATURES_L9 = 96;
+constexpr int iN_FEATURES_L10 = 96;
 
-int INPUT_IMAGE_WIDTH = 1024;
-int INPUT_IMAGE_HEIGHT = 1024;
-int INPUT_IMAGE_CHANNELS = 3;
+int iINPUT_IMAGE_WIDTH = 1024;
+int iINPUT_IMAGE_HEIGHT = 1024;
+int iINPUT_IMAGE_CHANNELS = 3;
 
-const char* INPUT_IMAGE_PATH_C = "C:\\SensoPart\\AnomalyDetection\\Datasets\\MVTec\\cable\\train\\good\\000trn.png";
-const char* INPUT_IMAGE_PATH = "C:\\SensoPart\\AnomalyDetection\\Board\\Code\\inference\\data\\000trn.bmp";
-const char* TFLITE_MODEL_PATH = "C:\\SensoPart\\AnomalyDetection\\model_tmp\\withCoresetAndResultScaler.tflite";
+const char* cINPUT_IMAGE_PATH_C = "C:\\SensoPart\\AnomalyDetection\\Datasets\\MVTec\\cable\\train\\good\\000trn.png";
+const char* cINPUT_IMAGE_PATH = "C:\\SensoPart\\AnomalyDetection\\Board\\Code\\inference\\data\\000trn.bmp";
+const char* cTFLITE_MODEL_PATH = "C:\\SensoPart\\AnomalyDetection\\model_tmp\\MobilenetV3_AnomalyDtc_model__post_int8.tflite";
+const char* cTFLITE_CORESET_PATH = "C:\\SensoPart\\AnomalyDetection\\model_tmp\\CoresetModel_model_coresetModel_float.tflite";
 //const char* INPUT_IMAGE_PATH = R"(C:\Users\Paul.Hilt\untracked_desktop\source\Data\MVTec_Anomaly_Dataset\cable\train\good\000trn.png)";
 //const char* TFLITE_MODEL_PATH = R"(C:\Users\Paul.Hilt\untracked_desktop\source\tensorflow_visor\anomaly_experiments\model_tmp\MobilenetV3_AnomalyDtc_logs_cmp_model_float.tflite)";
 
@@ -56,26 +56,60 @@ struct twoDImgSize
 {
     void print(std::string prefix) const
     {
-        printf("%s: height: %i and width: %i \n", prefix.c_str(), height, width);
+        printf("%s: height: %i and width: %i \n", prefix.c_str(), iHeight, iWidth);
     }
-    int height;
-    int width;
+    int iHeight;
+    int iWidth;
 };
 
 
-float getXYC(std::vector<float> image, unsigned int x, unsigned int y, unsigned int c, int& imageHeight, int imageWidth, int nChannels)
+uint8_t getXYC(std::vector<uint8_t> iImage, unsigned int x, unsigned int y, unsigned int c, int& iImageHeight, int iImageWidth, int iNChannels)
 {
-    int idx = c + (x * nChannels) + (y * imageWidth * nChannels);
-    return image[idx];
+    int idx = c + (x * iNChannels) + (y * iImageWidth * iNChannels);
+    return iImage[idx];
 }
 
 
+void printModelInAndOutput(std::unique_ptr<tflite::Interpreter>& interpreter)
+{
+    // INPUT
+    std::vector<int32_t> iInput = interpreter->inputs();
+    printf("INPUT \n");
+    for (int inputIdx = 0; inputIdx < iInput.size(); inputIdx++)
+    {
+        int iNumOfDims = interpreter->tensor(iInput[inputIdx])->dims->size;
+        TfLiteType type = interpreter->tensor(iInput[inputIdx])->type;
+        TfLiteIntArray* iDims = interpreter->tensor(iInput[inputIdx])->dims;
+        printf("  input %i with type %s and dimension: [", inputIdx, TfLiteTypeGetName(type));
+        for (int dimIdx = 0; dimIdx < iNumOfDims; dimIdx++)
+        {
+            printf(" %i ", iDims->data[dimIdx]);
+        }
+        printf("]\n");
+    }
 
-int loadTfLiteModel(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
-    std::vector<Eigen::MatrixXf>& fMaps,
-    std::vector<float>& resultScalers,
-    const char* sModelPath,
-    const std::vector<std::vector<float>> imagePatches)
+    // OUTPUT
+    printf("\nOUTPUT \n");
+    std::vector<int32_t> iOutput = interpreter->outputs();
+    for (int outputIdx = 0; outputIdx < iOutput.size(); outputIdx++)
+    {
+        int iNumOfDims = interpreter->tensor(iOutput[outputIdx])->dims->size;
+        TfLiteType type = interpreter->tensor(iOutput[outputIdx])->type;
+        TfLiteIntArray* iDims = interpreter->tensor(iOutput[outputIdx])->dims;
+        printf("  output %i with type %s and dimension: [", outputIdx, TfLiteTypeGetName(type));
+        for (int dimIdx = 0; dimIdx < iNumOfDims; dimIdx++)
+        {
+            printf(" %i ", iDims->data[dimIdx]);
+        }
+        printf("]\n");
+    }
+}
+
+
+int loadTfLiteModel(std::vector<std::vector<Eigen::MatrixXf>>& fCoresets,
+    std::vector<Eigen::MatrixXi>& iFMaps,
+    std::vector<float>& fResultScalers,
+    const std::vector<std::vector<uint8_t>> iImagePatches)
     /*
     * @brief:   1. loads tflite model in the model
     *           2. builds an interpreter with the tflite InterpreterBuilder
@@ -94,86 +128,66 @@ int loadTfLiteModel(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
     * @param IN imagePatches: vector with CImgs. num of CImgs= nPatches, CImg shape: (patchHeight, patchWidth, 1, nChannels)
     *
     */
-{
+{   
     printf("\n DEBUG: loadTfLiteModel() opend \n");
-    printf(" DEBUG: Inputs: coresets: vector(%i) < vector(%i) < MatrixXf(rows: %i, cols: %i)>> \n", coresets.size(), coresets[0].size(), coresets[0][0].rows(), coresets[0][0].cols());
-    printf(" DEBUG: Inputs: fMaps: vector(%i) < MatrixXf(rows: %i, cols: %i)> \n", fMaps.size(), fMaps[0].rows(), fMaps[0].cols());
-    printf(" DEBUG: Inputs: imagePatches: vector(%i) < CImg(height: %i, width: %i)> \n", imagePatches.size(), PATCH_HEIGHT, PATCH_WIDTH);
-    printf(" DEBUG: Inputs: resultScalers:vector(%i) \n", resultScalers.size());
+    printf(" DEBUG: Inputs: coresets: vector(%i) < vector(%i) < MatrixXf(rows: %i, cols: %i)>> \n", fCoresets.size(), fCoresets[0].size(), fCoresets[0][0].rows(), fCoresets[0][0].cols());
+    printf(" DEBUG: Inputs: fMaps: vector(%i) < MatrixXf(rows: %i, cols: %i)> \n", iFMaps.size(), iFMaps[0].rows(), iFMaps[0].cols());
+    printf(" DEBUG: Inputs: imagePatches: vector(%i) < CImg(height: %i, width: %i)> \n", iImagePatches.size(), iPATCH_HEIGHT, iPATCH_WIDTH);
+    printf(" DEBUG: Inputs: resultScalers:vector(%i) \n", fResultScalers.size());
 
     // load the Model
-    std::unique_ptr<tflite::FlatBufferModel> model = tflite::FlatBufferModel::BuildFromFile(sModelPath);
-    if (model == nullptr)
+    std::unique_ptr<tflite::FlatBufferModel> model = tflite::FlatBufferModel::BuildFromFile(cTFLITE_MODEL_PATH);
+    std::unique_ptr<tflite::FlatBufferModel> coresetModel = tflite::FlatBufferModel::BuildFromFile(cTFLITE_CORESET_PATH);
+    if (model == nullptr || coresetModel == nullptr)
     {
-        fprintf(stderr, "failed to load the model \n");
+        fprintf(stderr, "failed to load the model or the coresetModel \n");
         exit(-1);
     }
 
     // Build the interprteter
     std::unique_ptr<tflite::Interpreter> interpreter;
+    std::unique_ptr<tflite::Interpreter> coresetInterpreter;
     tflite::ops::builtin::BuiltinOpResolver resolver;
+    tflite::ops::builtin::BuiltinOpResolver coresetResolver;
     tflite::InterpreterBuilder(*model, resolver)(&interpreter);
-    if (interpreter == nullptr)
+    tflite::InterpreterBuilder(*coresetModel, coresetResolver)(&coresetInterpreter);
+    
+    if (interpreter == nullptr || coresetInterpreter == nullptr)
     {
         fprintf(stderr, "Failed to initiate the interpreter \n");
         exit(-1);
     }
+
     // allocate memory
-    if (interpreter->AllocateTensors() != kTfLiteOk)
+    if (interpreter->AllocateTensors() != kTfLiteOk && 
+        coresetInterpreter->AllocateTensors() != kTfLiteOk)
     {
         fprintf(stderr, "Failed to allocate tensor \n");
         exit(-1);
     }
 
-    // INPUT
-    std::vector<int> input = interpreter->inputs();
-    printf("INPUT \n");
-    for (int inputIdx = 0; inputIdx < input.size(); inputIdx++)
-    {
-        int numOfDims = interpreter->tensor(input[inputIdx])->dims->size;
-        TfLiteType type = interpreter->tensor(input[inputIdx])->type;
-        TfLiteIntArray* dims = interpreter->tensor(input[inputIdx])->dims;
-        printf("  input %i with type %s and dimension: [", inputIdx, TfLiteTypeGetName(type));
-        for (int dimIdx = 0; dimIdx < numOfDims; dimIdx++)
-        {
-            printf(" %i ", dims->data[dimIdx]);
-        }
-        printf("]\n");
-    }
+    printModelInAndOutput(interpreter);
+    printModelInAndOutput(coresetInterpreter);
 
-    // OUTPUT
-    printf("\nOUTPUT \n");
-    std::vector<int> output = interpreter->outputs();
-    for (int outputIdx = 0; outputIdx < output.size(); outputIdx++)
-    {
-        int numOfDims = interpreter->tensor(output[outputIdx])->dims->size;
-        TfLiteType type = interpreter->tensor(output[outputIdx])->type;
-        TfLiteIntArray* dims = interpreter->tensor(output[outputIdx])->dims;
-        printf("  output %i with type %s and dimension: [", outputIdx, TfLiteTypeGetName(type));
-        for (int dimIdx = 0; dimIdx < numOfDims; dimIdx++)
-        {
-            printf(" %i ", dims->data[dimIdx]);
-        }
-        printf("]\n");
-    }
-
+    std::vector<int32_t> iInput = interpreter->inputs();
+    std::vector<int32_t> iOutput = interpreter->outputs();
+    std::vector<int32_t> iCoresetOutput = coresetInterpreter->outputs();
 
     // get the properties of the layers
-    int fMapIdcs[] = { 0, 1 };
-    int coresetIdcs[] = { 2, 3 };
-    int resultScalerIdcs[] = { 4, 5 };
-    const size_t nLayers = fMaps.size();
+    int iFMapIdcs[] = { 0, 1 };
+    int iCoresetIdcs[] = { 1, 2 };
+    int iResultScalerIdcs[] = { 3, 3 };
+    const size_t iNLayers = iFMaps.size();
 
     // load the coresets
-    for (size_t layerIdx = 0; layerIdx < nLayers; layerIdx++)
+    for (size_t layerIdx = 0; layerIdx < iNLayers; layerIdx++)
     {
-        TfLiteIntArray* csetDim = interpreter->tensor(output[coresetIdcs[layerIdx]])->dims;
-        auto nCrsetSmpls = csetDim->data[0];
-        auto nPixels = csetDim->data[1];
-        auto nFeatures = csetDim->data[2];
-        float* cSet = interpreter->typed_output_tensor<float>(coresetIdcs[layerIdx]);
+        TfLiteIntArray* iCsetDim = coresetInterpreter->tensor(iCoresetOutput[iCoresetIdcs[layerIdx]])->dims;
+        auto nCrsetSmpls = iCsetDim->data[0];
+        auto nPixels = iCsetDim->data[1];
+        auto nFeatures = iCsetDim->data[2];
+        float* fCSet = coresetInterpreter->typed_output_tensor<float>(iCoresetIdcs[layerIdx]);
         size_t idx = 0;
-
 
         for (size_t smplIdx = 0; smplIdx < nCrsetSmpls; smplIdx++)
         {
@@ -182,7 +196,7 @@ int loadTfLiteModel(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
                 for (size_t featurIdx = 0; featurIdx < nFeatures; featurIdx++)
                 {
                     idx = (smplIdx * nPixels * nFeatures) + (pixelIdx * nFeatures) + featurIdx;
-                    coresets[layerIdx][smplIdx](pixelIdx, featurIdx) = cSet[idx];
+                    fCoresets[layerIdx][smplIdx](pixelIdx, featurIdx) = fCSet[idx];
                 }
             }
         }
@@ -191,31 +205,30 @@ int loadTfLiteModel(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
 
 
 
-    for (size_t layerIdx = 0; layerIdx < nLayers; layerIdx++)
+    for (size_t layerIdx = 0; layerIdx < iNLayers; layerIdx++)
     {
-        TfLiteIntArray* fMapDim = interpreter->tensor(output[fMapIdcs[layerIdx]])->dims;
+        TfLiteIntArray* iFMapDim = interpreter->tensor(iOutput[iFMapIdcs[layerIdx]])->dims;
 
-        auto layerWidth = fMapDim->data[1];
-        auto layerHeight = fMapDim->data[2];
-        auto nFeatures = fMapDim->data[3];
+        auto layerWidth = iFMapDim->data[1];
+        auto layerHeight = iFMapDim->data[2];
+        auto nFeatures = iFMapDim->data[3];
         auto nLayerPixels = layerWidth * layerHeight;
 
-
-        size_t netInputIdx = 0;
         size_t outputIdx = 0;
         size_t fMapIdx = 0;
 
-        for (size_t ptchIdx = 0; ptchIdx < imagePatches.size(); ptchIdx++)
+        for (size_t ptchIdx = 0; ptchIdx < iImagePatches.size(); ptchIdx++)
         {
-            float* netInput = interpreter->typed_input_tensor<float>(0);
-            std::vector<float> curPatch = imagePatches[ptchIdx];
+            int8_t* iNetInput = interpreter->typed_input_tensor<int8_t>(0);
+            std::vector<uint8_t> iCurPatch = iImagePatches[ptchIdx];
 
             // generate net output for the curPatch
-            interpreter->typed_tensor<float>(input[0]);
-            for (size_t elemIdx = 0; elemIdx < curPatch.size(); elemIdx++)
+            interpreter->typed_tensor<int>(iInput[0]);
+            for (size_t elemIdx = 0; elemIdx < iCurPatch.size(); elemIdx++)
             {
-                netInput[elemIdx] = curPatch[elemIdx];
+                iNetInput[elemIdx] = iCurPatch[elemIdx];
             }
+            printf("Output for patch %i generated \n", ptchIdx);
 
 
             if (interpreter->Invoke() != kTfLiteOk) {
@@ -223,14 +236,14 @@ int loadTfLiteModel(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
             }
 
             // load the fMap
-            float* netOutput = interpreter->typed_output_tensor<float>(fMapIdcs[layerIdx]);
+            int8_t* iNetOutput = interpreter->typed_output_tensor<int8_t>(iFMapIdcs[layerIdx]);
             for (size_t pxlIdx = 0; pxlIdx < nLayerPixels; pxlIdx++)
             {
                 fMapIdx = pxlIdx + (ptchIdx * nLayerPixels);
                 for (size_t ftrIdx = 0; ftrIdx < nFeatures; ftrIdx++)
                 {
                     outputIdx = ftrIdx + (pxlIdx * nFeatures);
-                    fMaps[layerIdx](fMapIdx, ftrIdx) = netOutput[outputIdx];
+                    iFMaps[layerIdx](fMapIdx, ftrIdx) = iNetOutput[outputIdx];
                 }
             }
         }
@@ -239,18 +252,17 @@ int loadTfLiteModel(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
 
 
     // load the result scalers
-    for (size_t layerIdx = 0; layerIdx < nLayers; layerIdx++)
+    for (size_t layerIdx = 0; layerIdx < iNLayers; layerIdx++)
     {
-        float* netOutput = interpreter->typed_output_tensor<float>(resultScalerIdcs[layerIdx]);
-        resultScalers.push_back(netOutput[0]);
+        float* fNetOutput = coresetInterpreter->typed_output_tensor<float>(iResultScalerIdcs[layerIdx]);
+        fResultScalers.push_back(fNetOutput[0]);
     }
 
     printf("\n DEBUG: loadTfLiteModel() closed \n");
-
 }
 
 
-Eigen::MatrixXf distanceL1(const std::vector<Eigen::MatrixXf>& coreset, const Eigen::MatrixXf& fMap)
+Eigen::MatrixXf distanceL1(const std::vector<Eigen::MatrixXf>& fCoreset, const Eigen::MatrixXf& fFMap)
 /*
  * @brief calculates L1 Distance between every corset sample and the fMap
  *
@@ -260,27 +272,27 @@ Eigen::MatrixXf distanceL1(const std::vector<Eigen::MatrixXf>& coreset, const Ei
 */
 {
     printf("\n DEBUG: distanceL1() opend \n");
-    printf(" DEBUG: Inputs: coreset: vector(%i) < MatrixXf(rows: %i, cols: %i)> \n", coreset.size(), coreset[0].rows(), coreset[0].cols());
-    printf(" DEBUG: Inputs: fMap: MatrixXf(rows: %i, cols: %i)> \n", fMap.rows(), fMap.cols());
+    printf(" DEBUG: Inputs: coreset: vector(%i) < MatrixXf(rows: %i, cols: %i)> \n", fCoreset.size(), fCoreset[0].rows(), fCoreset[0].cols());
+    printf(" DEBUG: Inputs: fMap: MatrixXf(rows: %i, cols: %i)> \n", fFMap.rows(), fFMap.cols());
 
 
-    int nCoresetSamples = coreset.size();
+    int iNCoresetSamples = fCoreset.size();
 
-    Eigen::MatrixXf distMat(nCoresetSamples, fMap.rows());
-    for (size_t cSetIdx = 0; cSetIdx < nCoresetSamples; cSetIdx++)
+    Eigen::MatrixXf fDistMat(iNCoresetSamples, fFMap.rows());
+    for (size_t cSetIdx = 0; cSetIdx < iNCoresetSamples; cSetIdx++)
     {
-        Eigen::MatrixXf diff = coreset[cSetIdx] - fMap;
-        Eigen::MatrixXf absDiff = diff.array().abs();
-        Eigen::VectorXf distVec(fMap.rows());
-        distVec = absDiff.rowwise().sum();
-        distMat.row(cSetIdx) = distVec;
+        Eigen::MatrixXf fDiff = fCoreset[cSetIdx] - fFMap;
+        Eigen::MatrixXf fAbsDiff = fDiff.array().abs();
+        Eigen::VectorXf fDistVec(fFMap.rows());
+        fDistVec = fAbsDiff.rowwise().sum();
+        fDistMat.row(cSetIdx) = fDistVec;
     }
 
     printf("\n DEBUG: distanceL1() closed \n");
-    return distMat;
+    return fDistMat;
 }
 
-Eigen::MatrixXf distanceL2(const std::vector<Eigen::MatrixXf>& coreset, const Eigen::MatrixXf& fMap)
+Eigen::MatrixXf distanceL2(const std::vector<Eigen::MatrixXf>& fCoreset, const Eigen::MatrixXf& fFMap)
 /*
  * @brief calculates L2 Distance between every corset sample and the fMap
  *
@@ -290,25 +302,25 @@ Eigen::MatrixXf distanceL2(const std::vector<Eigen::MatrixXf>& coreset, const Ei
 */
 {
     printf("\n DEBUG: distanceL2() opend \n");
-    printf(" DEBUG: Inputs: coreset: vector(%i) < MatrixXf(rows: %i, cols: %i)> \n", coreset.size(), coreset[0].rows(), coreset[0].cols());
-    printf(" DEBUG: Inputs: fMap: MatrixXf(rows: %i, cols: %i)> \n", fMap.rows(), fMap.cols());
-    int nCoresetSamples = coreset.size();
+    printf(" DEBUG: Inputs: coreset: vector(%i) < MatrixXf(rows: %i, cols: %i)> \n", fCoreset.size(), fCoreset[0].rows(), fCoreset[0].cols());
+    printf(" DEBUG: Inputs: fMap: MatrixXf(rows: %i, cols: %i)> \n", fFMap.rows(), fFMap.cols());
+    int iNCoresetSamples = fCoreset.size();
 
-    Eigen::MatrixXf distMat(fMap.rows(), nCoresetSamples);
-    for (size_t cSetIdx = 0; cSetIdx < nCoresetSamples; cSetIdx++)
+    Eigen::MatrixXf fDistMat(fFMap.rows(), iNCoresetSamples);
+    for (size_t cSetIdx = 0; cSetIdx < iNCoresetSamples; cSetIdx++)
     {
-        Eigen::MatrixXf diff = coreset[cSetIdx] - fMap;
-        Eigen::MatrixXf sqrDiff = diff.array().square();
-        Eigen::VectorXf distVec(fMap.rows());
-        distVec = sqrDiff.rowwise().sum();
-        distVec = distVec.array().sqrt();
-        distMat.col(cSetIdx) = distVec;
+        Eigen::MatrixXf fDiff = fCoreset[cSetIdx] - fFMap;
+        Eigen::MatrixXf fSqrDiff = fDiff.array().square();
+        Eigen::VectorXf fDistVec(fFMap.rows());
+        fDistVec = fSqrDiff.rowwise().sum();
+        fDistVec = fDistVec.array().sqrt();
+        fDistMat.col(cSetIdx) = fDistVec;
     }
     printf("\n DEBUG: distanceL2() closed \n");
-    return distMat;
+    return fDistMat;
 }
 
-Eigen::MatrixXf colMin(const Eigen::MatrixXf& mat)
+Eigen::MatrixXf colMin(const Eigen::MatrixXf& fMat)
 /*
  * @brief calculate for every column (pixelDimension) the minimal value over all samples in mat (nCoresetSamples)
  *
@@ -317,13 +329,14 @@ Eigen::MatrixXf colMin(const Eigen::MatrixXf& mat)
 */
 {
     printf("\n DEBUG: colMin() opend \n");
-    printf(" DEBUG: Inputs: mat: MatrixXf(rows: %i, cols: %i)> \n", mat.rows(), mat.rows());
+    printf(" DEBUG: Inputs: mat: MatrixXf(rows: %i, cols: %i)> \n", fMat.rows(), fMat.rows());
     printf("\n DEBUG: colMin() closed \n");
 
-    return mat.colwise().minCoeff();
+    return fMat.colwise().minCoeff();
 }
 
-Eigen::MatrixXf kNN(const Eigen::MatrixXf& mat, const int k)
+
+Eigen::MatrixXf kNN(const Eigen::MatrixXf& fMat)
 /*
  * @brief calculates for every column (pixelDimension) the k minimal values over all samples in mat (nCoresetSamples)
  *
@@ -333,26 +346,26 @@ Eigen::MatrixXf kNN(const Eigen::MatrixXf& mat, const int k)
 */
 {
     printf("\n DEBUG: kNN() opend \n");
-    printf(" DEBUG: Inputs: mat: MatrixXf(rows: %i, cols: %i)> \n", mat.rows(), mat.cols());
-    printf(" DEBUG: Inputs: k=%i \n", k);
+    printf(" DEBUG: Inputs: mat: MatrixXf(rows: %i, cols: %i)> \n", fMat.rows(), fMat.cols());
+    printf(" DEBUG: Inputs: k=%i \n", iN_NEIGBRHS);
 
 
-    Eigen::MatrixXf sortedMat(mat.rows(), k);
+    Eigen::MatrixXf fSortedMat(fMat.rows(), iN_NEIGBRHS);
     // sort all entries in each column of the matrix
-    for (size_t i = 0; i < mat.rows(); ++i)
+    for (size_t i = 0; i < fMat.rows(); ++i)
     {
-        Eigen::VectorXf vec = mat.row(i);
-        std::partial_sort(vec.data(), vec.data() + k, vec.data() + vec.size());
-        sortedMat.row(i) = vec.head(k);
+        Eigen::VectorXf fVec = fMat.row(i);
+        std::partial_sort(fVec.data(), fVec.data() + iN_NEIGBRHS, fVec.data() + fVec.size());
+        fSortedMat.row(i) = fVec.head(iN_NEIGBRHS);
     }
 
     printf("\n DEBUG: kNN() closed \n");
     // only take the first k neighbours for each pixel induvidually
-    return sortedMat;
+    return fSortedMat;
 }
 
 
-Eigen::VectorXd softMaxFunction(const Eigen::MatrixXf& input)
+Eigen::VectorXd softMaxFunction(const Eigen::MatrixXf& fInput)
 /*
  * @brief takes the minimal values of the input matrix along the k nearest neighbours and multplies it
  * with the softmax
@@ -362,23 +375,23 @@ Eigen::VectorXd softMaxFunction(const Eigen::MatrixXf& input)
 */
 {
     printf("\n DEBUG: softMaxFunction() opend \n");
-    printf(" DEBUG: Inputs: input: MatrixXf(rows: %i, cols: %i)> \n", input.rows(), input.cols());
+    printf(" DEBUG: Inputs: input: MatrixXf(rows: %i, cols: %i)> \n", fInput.rows(), fInput.cols());
     // calc the denominaotr: sum over the exp()
-    auto cast = input.cast<double>();
-    Eigen::MatrixXd softmaxed = cast.array().exp();
-    Eigen::VectorXd denoms = softmaxed.rowwise().sum();
-    softmaxed = softmaxed.array().colwise() / denoms.array();
+    auto cast = fInput.cast<double>();
+    Eigen::MatrixXd dSoftmaxed = cast.array().exp();
+    Eigen::VectorXd dDenoms = dSoftmaxed.rowwise().sum();
+    dSoftmaxed = dSoftmaxed.array().colwise() / dDenoms.array();
 
-    Eigen::VectorXd reduced = softmaxed.rowwise().minCoeff();
-    Eigen::VectorXd oneMinus = Eigen::VectorXd::Ones(reduced.size()) - reduced;
-    Eigen::VectorXd reducedInputDouble = (input.rowwise().minCoeff()).cast<double>();
-    Eigen::VectorXd product = oneMinus.array() * reducedInputDouble.array();
+    Eigen::VectorXd dReduced = dSoftmaxed.rowwise().minCoeff();
+    Eigen::VectorXd dOneMinus = Eigen::VectorXd::Ones(dReduced.size()) - dReduced;
+    Eigen::VectorXd dReducedInputDouble = (fInput.rowwise().minCoeff()).cast<double>();
+    Eigen::VectorXd dProduct = dOneMinus.array() * dReducedInputDouble.array();
 
     printf("\n DEBUG: softMaxFunction() closed \n");
-    return product;
+    return dProduct;
 }
 
-double calcPercentile(Eigen::VectorXd& vec, const float percentile2)
+double calcPercentile(Eigen::VectorXd& dVec)
 /*
  * @brief takes the value for which $percentile2$ percent are larger than this value
  *
@@ -388,17 +401,18 @@ double calcPercentile(Eigen::VectorXd& vec, const float percentile2)
 */
 {
     printf("\n DEBUG: calcPercentile() opend \n");
-    printf(" DEBUG: Inputs: VectorXd(size: %i)> \n", vec.size());
-    printf(" DEBUG: Inputs: percetnile2 = %f \n", percentile2);
+    printf(" DEBUG: Inputs: VectorXd(size: %i)> \n", dVec.size());
+    printf(" DEBUG: Inputs: percetnile2 = %f \n", fPERCENTILE2);
 
-    int vecIndex = round(percentile2 * vec.size() / 100.0);
-    std::partial_sort(std::reverse_iterator(vec.data() + vec.size()), std::reverse_iterator(vec.data() + vecIndex), std::reverse_iterator(vec.data()), std::greater{});
+    int vecIndex = round((100.0 - fPERCENTILE2) * dVec.size() / 100.0);
+    std::partial_sort(std::reverse_iterator(dVec.data() + dVec.size()), std::reverse_iterator(dVec.data() + vecIndex), std::reverse_iterator(dVec.data()), std::greater{});
 
     printf("\n DEBUG: calcPercentile() closed \n");
-    return vec(vecIndex);
+    return dVec(vecIndex);
 }
 
-Eigen::VectorXf aggreagteSofmaxeds(std::vector<Eigen::VectorXd>& softmaxeds)
+
+Eigen::VectorXf aggreagteSofmaxeds(std::vector<Eigen::VectorXd>& dSoftmaxeds)
 /*
 * @brief: returns the elementwise max for each pixel between different layers
 *
@@ -407,46 +421,48 @@ Eigen::VectorXf aggreagteSofmaxeds(std::vector<Eigen::VectorXd>& softmaxeds)
 */
 {
     printf("\n DEBUG: aggreagteSofmaxeds opend \n ");
-    printf(" DEBUG: Inputs: softmaxeds: vector(%i) < VectorXd(size: %i)> \n", softmaxeds.size(), softmaxeds[0].size());
+    printf(" DEBUG: Inputs: softmaxeds: vector(%i) < VectorXd(size: %i)> \n", dSoftmaxeds.size(), dSoftmaxeds[0].size());
 
-    Eigen::VectorXd max = Eigen::VectorXd::Zero(softmaxeds[0].size());
+    Eigen::VectorXd dMax = Eigen::VectorXd::Zero(dSoftmaxeds[0].size());
 
-    for (const auto& sofmaxed : softmaxeds)
-        max = max.cwiseMax(sofmaxed);
+    for (const auto& sofmaxed : dSoftmaxeds)
+        dMax = dMax.cwiseMax(sofmaxed);
 
 
     printf("\n DEBUG: aggreagteSofmaxeds closed \n ");
-    return max.cast<float>();
+    return dMax.cast<float>();
 }
 
-float aggregatePercentileds(std::vector<double>& percentileds)
+
+float aggregatePercentileds(std::vector<double>& dPercentileds)
 /*
 * @brief: max for variable number of layers k
 *
 * @param IN percentileds: vector(k) of floats, k=numOfLayers
 * @ return: one float value which is the maximum ovetr all for k layers
 */
-{
+ {
     printf("\n DEBUG: aggregatePercentileds opend \n ");
-    printf(" DEBUG: Inputs: percentileds: vector(size: %i)<double> \n", percentileds.size());
+    printf(" DEBUG: Inputs: percentileds: vector(size: %i)<double> \n", dPercentileds.size());
 
-    double max = 0.0;
-    for (const auto& percentiled : percentileds)
+    float dMax = 0.0;
+    for (const auto& percentiled : dPercentileds)
     {
-        if (max < percentiled)
-            max = percentiled;
+        if (dMax < percentiled)
+            dMax = percentiled;
     }
 
     printf("\n DEBUG: aggregatePercentileds closed \n ");
-    return max;
+    return dMax;
 }
+ 
 
-void getAnomalyScore(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
-    std::vector<Eigen::MatrixXf>& fMaps,
-    std::vector<float>& resultScalers,
-    float& anomalyScore,
-    Eigen::VectorXf& anomalyMap,
-    bool useDistMetricL1)
+void getAnomalyScore(std::vector<std::vector<Eigen::MatrixXf>>& fCoresets,
+    std::vector<Eigen::MatrixXf>& iFMaps,
+    std::vector<float>& fResultScalers,
+    float& fAnomalyScore,
+    Eigen::VectorXf& fAnomalyMap,
+    bool bUseDistMetricL1)
     /*
     * @brief:   calculate for a given coreset and fMap the anomaly Score and the anomaly Map. Decide wheter to take L1 or L2 norm
     *           1. calculate distances between fMap and each coreset Sample
@@ -463,53 +479,55 @@ void getAnomalyScore(std::vector<std::vector<Eigen::MatrixXf>>& coresets,
     */
 {
     printf("\n DEBUG: getAnomalyScore() opend \n");
-    printf(" DEBUG: Inputs: coresets: vector(%zu) < vector(%zu) < MatrixXf(rows: %i, cols: %i)>> \n", coresets.size(), coresets[0].size(), coresets[0][0].rows(), coresets[0][0].cols());
-    printf(" DEBUG: Inputs: fMaps: vector(%zu) < MatrixXf(rows: %i, cols: %i)> \n", fMaps.size(), fMaps[0].rows(), fMaps[0].cols());
-    printf(" DEBUG: Inputs: resultScalers:vector(%i) \n", resultScalers.size());
-    printf(" DEBUG: Inputs: anomalyMap: VectorXf(size: %i)> \n", anomalyMap.size());
+    printf(" DEBUG: Inputs: coresets: vector(%zu) < vector(%zu) < MatrixXf(rows: %i, cols: %i)>> \n", fCoresets.size(), fCoresets[0].size(), fCoresets[0][0].rows(), fCoresets[0][0].cols());
+    printf(" DEBUG: Inputs: fMaps: vector(%zu) < MatrixXf(rows: %i, cols: %i)> \n", iFMaps.size(), iFMaps[0].rows(), iFMaps[0].cols());
+    printf(" DEBUG: Inputs: resultScalers:vector(%i) \n", fResultScalers.size());
+    printf(" DEBUG: Inputs: anomalyMap: VectorXf(size: %i)> \n", fAnomalyMap.size());
 
+    const size_t iNLayers = iFMaps.size();
+    std::vector<Eigen::VectorXd> dSoftmaxeds;
+    std::vector<double> dPercentileds;
 
-    const size_t nLayers = fMaps.size();
-    std::vector<Eigen::VectorXd> softmaxeds;
-    std::vector<double> percentileds;
-
-    for (size_t layerIdx = 0; layerIdx < nLayers; layerIdx++)
+    
+    for (size_t layerIdx = 0; layerIdx < iNLayers; layerIdx++)
     {
         // distance calculation
-        Eigen::MatrixXf distMat = Eigen::MatrixXf::Zero(coresets[layerIdx].size(), fMaps[layerIdx].rows());
-        if (useDistMetricL1)
+        Eigen::MatrixXf fDistMat = Eigen::MatrixXf::Zero(fCoresets[layerIdx].size(), iFMaps[layerIdx].rows());
+        if (bUseDistMetricL1)
         {
-            distMat = distanceL1(coresets[layerIdx], fMaps[layerIdx]);
+            fDistMat = distanceL1(fCoresets[layerIdx], iFMaps[layerIdx]);
         }
         else
         {
-            distMat = distanceL2(coresets[layerIdx], fMaps[layerIdx]);
+            fDistMat = distanceL2(fCoresets[layerIdx], iFMaps[layerIdx]);
         }
 
         // kNN
-        Eigen::MatrixXf topK = kNN(distMat, N_NEIGBRHS);
+        Eigen::MatrixXf fTopK = kNN(fDistMat);
 
         // softmax
-        Eigen::VectorXd softmaxed = softMaxFunction(topK);
-        softmaxeds.push_back(softmaxed);
+        Eigen::VectorXd dSoftmaxed = softMaxFunction(fTopK);
+        dSoftmaxeds.push_back(dSoftmaxed);
 
         // divide by the resultScaler
-        Eigen::VectorXd normalized = softmaxed / resultScalers[layerIdx];
+        Eigen::VectorXd dNormalized = dSoftmaxed / fResultScalers[layerIdx];
 
         // percentile
-        double percentiled = calcPercentile(normalized, 100.0 - PERCENTILE2);
-        percentileds.push_back(percentiled);
+        double dPercentiled = calcPercentile(dNormalized);
+        dPercentileds.push_back(dPercentiled);
 
     }
 
     // max over both layers
-    anomalyMap = aggreagteSofmaxeds(softmaxeds);
-    anomalyScore = aggregatePercentileds(percentileds);
+    fAnomalyMap = aggreagteSofmaxeds(dSoftmaxeds);
+    fAnomalyScore = aggregatePercentileds(dPercentileds);
 
     printf("\n DEBUG: getAnomalyScore() closed \n");
+    
 }
 
-void calcNumOfPatches(twoDImgSize imgSize, const twoDImgSize patchSize, twoDImgSize& nPatches)
+
+void calcNumOfPatches(twoDImgSize iImgSize, const twoDImgSize iPatchSize, twoDImgSize& iNPatches)
 /*
 * @brief: calculates the number of patches in both directions and returns them with nPatchesWidth and nPatchesHeight
 *
@@ -520,13 +538,14 @@ void calcNumOfPatches(twoDImgSize imgSize, const twoDImgSize patchSize, twoDImgS
 {
     printf("\n DEBUG: calcNumOfPatches() opend \n");
 
-    nPatches.height = ceil(float(imgSize.height) / float(patchSize.height));
-    nPatches.width = ceil(float(imgSize.width) / float(patchSize.width));
+    iNPatches.iHeight = ceil(float(iImgSize.iHeight) / float(iPatchSize.iHeight));
+    iNPatches.iWidth = ceil(float(iImgSize.iWidth) / float(iPatchSize.iWidth));
 
     printf("\n DEBUG: calcNumOfPatches() closed \n");
-}
+ }
+    
 
-void imageToPatches(std::vector<float>& image, const twoDImgSize imgSize, const twoDImgSize nPatches, const twoDImgSize patchSize, std::vector<std::vector<float>>& imagePatches)
+void imageToPatches(std::vector<uint8_t>& iImage, const twoDImgSize iImgSize, const twoDImgSize iNPatches, const twoDImgSize iPatchSize, std::vector<std::vector<uint8_t>>& iImagePatches)
 /*
 * @brief: converts the input image to patches of size (nPatchesWidth x nPatchesHeight) with zero Padding and returns them in imagePatches
 *
@@ -537,41 +556,41 @@ void imageToPatches(std::vector<float>& image, const twoDImgSize imgSize, const 
 */
 {
     printf("\n DEBUG: imageToPatches() opend \n");
-    std::cout << "imgSize.width: " << imgSize.width << " imgSize.height: " << imgSize.height << std::endl;
-    std::cout << "nPatches.width: " << nPatches.width << " nPatches.height: " << nPatches.height << std::endl;
-    std::cout << "patchSize.width: " << patchSize.width << " patchSize.height: " << patchSize.height << std::endl;
+    std::cout << "imgSize.width: " << iImgSize.iWidth << " imgSize.height: " << iImgSize.iHeight << std::endl;
+    std::cout << "nPatches.width: " << iNPatches.iWidth << " nPatches.height: " << iNPatches.iHeight << std::endl;
+    std::cout << "patchSize.width: " << iPatchSize.iWidth << " patchSize.height: " << iPatchSize.iHeight << std::endl;
 
     
     // calculate the difference in size
-    int newImageWidth = nPatches.width * patchSize.width;
-    int newImageHeight = nPatches.height * patchSize.height;
+    int iNewImageWidth = iNPatches.iWidth * iPatchSize.iWidth;
+    int iNewImageHeight = iNPatches.iHeight * iPatchSize.iHeight;
 
-    int widthDiff = newImageWidth - imgSize.width;
-    int heightDiff = newImageHeight - imgSize.height;
+    int iWidthDiff = iNewImageWidth - iImgSize.iWidth;
+    int iHeightDiff = iNewImageHeight - iImgSize.iHeight;
     
-    std::cout << "newImageWidth: " << newImageWidth << " newImageHeight: " << newImageHeight << std::endl;
-    std::cout << "widthDiff: " << widthDiff << " heightDiff: " << heightDiff << std::endl;
+    std::cout << "newImageWidth: " << iNewImageWidth << " newImageHeight: " << iNewImageHeight << std::endl;
+    std::cout << "widthDiff: " << iWidthDiff << " heightDiff: " << iHeightDiff << std::endl;
     
 
     auto paddingStartTime = std::chrono::steady_clock:: now();
     // add 0s to right edge
     int idx = 0;
-    int numZeros = widthDiff;
-    std::vector<float> zerosRight(numZeros, 0.0);
-    for (size_t y = 0; y < imgSize.height; y++)
+    int iNumZeros = iWidthDiff;
+    std::vector<float> fZzerosRight(iNumZeros, 0.0);
+    for (size_t y = 0; y < iImgSize.iHeight; y++)
     {
-        for (size_t ch = 0; ch < INPUT_IMAGE_CHANNELS; ch++)
+        for (size_t ch = 0; ch < iINPUT_IMAGE_CHANNELS; ch++)
         {
-            idx = ch + (INPUT_IMAGE_CHANNELS * imgSize.width) + (y * INPUT_IMAGE_CHANNELS * newImageWidth);
+            idx = ch + (iINPUT_IMAGE_CHANNELS * iImgSize.iWidth) + (y * iINPUT_IMAGE_CHANNELS * iNewImageWidth);
             // insert numZeros zeros at idx to the vector image
-            image.insert(image.begin() + idx, zerosRight.begin(), zerosRight.end());
+            iImage.insert(iImage.begin() + idx, fZzerosRight.begin(), fZzerosRight.end());
         }
     }
 
     // add 0s to the bottom
-    numZeros = INPUT_IMAGE_CHANNELS * heightDiff * newImageWidth;  // 3 = nChannels
-    std::vector<float> zerosBottom(numZeros, 0.0);
-    image.insert(image.end(), zerosBottom.begin(), zerosBottom.end());
+    iNumZeros = iINPUT_IMAGE_CHANNELS * iHeightDiff * iNewImageWidth;  // 3 = nChannels
+    std::vector<float> fZerosBottom(iNumZeros, 0.0);
+    iImage.insert(iImage.end(), fZerosBottom.begin(), fZerosBottom.end());
     
     auto paddingEndTime = std::chrono::steady_clock::now();
     std::cout << "Elapsed padding time in microseconds: "
@@ -586,28 +605,28 @@ void imageToPatches(std::vector<float>& image, const twoDImgSize imgSize, const 
     int ptchIdx = 0;                                            // flatted(row, than column) patch ID
     int rowIdx = 0;                                             // inside an patch how many rows there are in
     int startIdx = 0;                                           // indx in the image where inserting into an patch starts
-    int nRowElems = PATCH_WIDTH * INPUT_IMAGE_CHANNELS;         // number of elements from the flattet image which should be copied to a patch
-    int endIdx = startIdx + nRowElems;                          // indx in the image where inserting into an patch ends
+    int iNRowElems = iPATCH_WIDTH * iINPUT_IMAGE_CHANNELS;         // number of elements from the flattet image which should be copied to a patch
+    int endIdx = startIdx + iNRowElems;                          // indx in the image where inserting into an patch ends
 
-    int nPatchRows = nPatches.width * nPatches.height * PATCH_HEIGHT;  // how many rows from the image are copied into patches
+    int iNPatchRows = iNPatches.iWidth * iNPatches.iHeight * iPATCH_HEIGHT;  // how many rows from the image are copied into patches
 
     // loop over every patch row which is copied from the image to a specific patch
-    for (size_t patchRow = 0; patchRow < nPatchRows; patchRow++)
+    for (size_t patchRow = 0; patchRow < iNPatchRows; patchRow++)
     {
-        ptchIdx = ptchX + (ptchY * nPatches.width);
+        ptchIdx = ptchX + (ptchY * iNPatches.iWidth);
         //std::cout << "Current patch: " << ptchIdx << " (" << ptchX << "," << ptchY << ")"
         //    " and start and end idxs: " << startIdx << "-" << endIdx << std::endl;
 
-        std::vector<float>& curPatch = imagePatches[ptchIdx];
-        curPatch.insert(curPatch.end(), image.begin() + startIdx, image.begin() + endIdx);
+        std::vector<uint8_t>& curPatch = iImagePatches[ptchIdx];
+        curPatch.insert(curPatch.end(), iImage.begin() + startIdx, iImage.begin() + endIdx);
 
         // update startIdx and endIdx
         startIdx = endIdx;
-        endIdx = startIdx + nRowElems;
+        endIdx = startIdx + iNRowElems;
         ptchX++;
 
         // exit patch at the right boarder
-        if (ptchX >= nPatches.height)
+        if (ptchX >= iNPatches.iHeight)
         {
             ptchX = 0;
             rowIdx++;
@@ -615,7 +634,7 @@ void imageToPatches(std::vector<float>& image, const twoDImgSize imgSize, const 
         // added a comment
 
         // exit patch at the bottom boarder
-        if (rowIdx >= PATCH_HEIGHT)
+        if (rowIdx >= iPATCH_HEIGHT)
         {
             rowIdx = 0;
             ptchY++;
@@ -628,67 +647,8 @@ void imageToPatches(std::vector<float>& image, const twoDImgSize imgSize, const 
     printf("\n DEBUG: imageToPatches() closed \n");
 }
 
-std::vector<float> addBlackBoarder(std::vector<float>& imagePatch, const int boarderWidth)
-/*
-* @brief:   adds an black boarder to an imagePatch at each size and returns an image which has in each direction
-*           2*boarderWidth pixels more
-*
-* @param  IN boarderWidth: int defines how many pixels are added in each direction
-* @param  IN: imagePatch: CImg of a patch where the black boarders should be added
-*
-* @ return: CImg with larger size and black boarder
-*/
-{
-    int patchWidth = PATCH_WIDTH;
-    int patchHeight = PATCH_HEIGHT;
-    int newWidth = 2 * boarderWidth + patchWidth;
-    int newHeight = 2 * boarderWidth + patchHeight;
-    // ToDo std::vector<flaot>  newImage(newWidth, newHeight, 1, 3, 0.0);
-    std::vector<float>  newImage;
-    for (size_t y = 0; y < patchWidth; y++)
-    {
-        for (size_t x = 0; x < patchHeight; x++)
-        {
-            size_t newX = x + boarderWidth;
-            size_t newY = y + boarderWidth;
-            for (size_t i = 0; i < 3; i++)
-            {
-                // ToDonewImage(newX, newY, 0, i) = imagePatch(x, y, 0, i);
-            }
-        }
-    }
-    return newImage;
-}
 
-void displayPatches(std::vector<std::vector<float>>& imagePatches, twoDImgSize nPatches)
-/*
-* @brief: displays all the patches with added black boarders
-*
-* @param  IN imagePatches: all image patches of an image as vector of CImgs
-* @param  IN nPatches: .height and .width as num of pixels in a patch
-*
-*/
-{
-    printf("\n DEBUG: displayPatches() opend \n");
-    std::vector<float> grid;
-    std::vector<float> col;
-    size_t idx = 0;
-    for (size_t y = 0; y < nPatches.height; y++)
-    {
-        col.clear();
-        for (size_t x = 0; x < nPatches.width; x++)
-        {
-            idx = (x * nPatches.height) + y;
-            std::vector<float> patch = addBlackBoarder(imagePatches[idx], 5);
-            // ToDo col.append(patch, 'y');
-        }
-        // ToDo grid.append(col, 'x');
-    }
-
-    printf("\n DEBUG: displayPatches() closed \n");
-}
-
-void patchesToImage(std::vector<float>& image, std::vector<std::vector<float>>& imagePatches, twoDImgSize nPatches)
+void patchesToImage(std::vector<uint8_t>& iImage, std::vector<std::vector<uint8_t>>& iImagePatches, twoDImgSize iNPatches)
 /*
 * @brief: puts all patches together in one image
 *
@@ -699,16 +659,16 @@ void patchesToImage(std::vector<float>& image, std::vector<std::vector<float>>& 
 {
     printf("\n DEBUG: patchesToImage() opend \n");
 
-    image.clear();
-    std::vector<float> col;
+    iImage.clear();
+    std::vector<uint8_t> iCol;
     size_t idx = 0;
-    for (size_t x = 0; x < nPatches.width; x++)
+    for (size_t x = 0; x < iNPatches.iWidth; x++)
     {
-        col.clear();
-        for (size_t y = 0; y < nPatches.height; y++)
+        iCol.clear();
+        for (size_t y = 0; y < iNPatches.iHeight; y++)
         {
-            idx = (x * nPatches.height) + y;
-            std::vector<float> patch = imagePatches[idx];
+            idx = (x * iNPatches.iHeight) + y;
+            std::vector<uint8_t> patch = iImagePatches[idx];
             // ToDo col.append(patch, 'y');
         }
         // ToDo image.append(col, 'x');
@@ -716,7 +676,8 @@ void patchesToImage(std::vector<float>& image, std::vector<std::vector<float>>& 
     printf("\n DEBUG: patchesToImage() closed \n");
 }
 
-std::vector<float> mobileNetPreprocessing(std::vector<uint8_t>& img)
+
+std::vector<uint8_t> mobileNetPreprocessing(std::vector<uint8_t>& iImg)
 /*
 * @brief normalizes the image by dividing by 172.5 and subtracting -1.0
 *
@@ -724,177 +685,107 @@ std::vector<float> mobileNetPreprocessing(std::vector<uint8_t>& img)
 */
 {
     printf("\n DEBUG: mobileNetPreprocessing() opend \n");
-    std::vector<float> floatImg;
-    float value;
-    for (uint8_t& elem : img)
+    std::vector<uint8_t> iOutputImg;
+    int iValue;
+    for (uint8_t& elem : iImg)
     {
-        value = float(elem) / 127.5 - 1.0;
-        floatImg.push_back(float(elem) / 127.5 - 1.0);
+        iValue = elem; // / 127.5 - 1.0;
+        iOutputImg.push_back(iValue);
     }
-
-    for (size_t x = 0; x < INPUT_IMAGE_WIDTH; x++)
-    {
-        for (size_t y = 0; y < INPUT_IMAGE_HEIGHT ; y++)
-        {
-            for (size_t clr = 0; clr < 3; clr++)
-            {
-                // ToDo img.atXYZC(x, y, 0, clr) = img.atXYZC(x, y, 0, clr) / 127.5 - 1.0;
-            }
-        }
-    }
+    
     printf("\n DEBUG: mobileNetPreprocessing() closed \n");
-    return floatImg;
+    return iOutputImg;
 }
 
-void displayAnomlayMap(Eigen::VectorXf& anomalyMap, twoDImgSize nPatches)
-/*
-* @brief: displays te anomaly map as Cimg
-*
-* @param IN anomalyMap: Eigen::VectorXf with size=numOfPixels
-* @param IN nPatches: height and width shows the number of patches the map consists of
-*/
-{
-    size_t patchWidth = 14;
-    size_t patchHeight = 14;
-    size_t nPtchPixels = patchWidth * patchHeight;
-    size_t anomalyMapImgWidth = patchWidth * nPatches.width;
-    size_t anomalyMapImgHeight = patchHeight * nPatches.height;
-    size_t vecIdx = 0;
-    size_t ptchIdx = 0;
-    size_t xImxIdx = 0;
-    size_t yImgIdx = 0;
 
-    // ToDo std::vector<float> anomalyMapImg(70, 70, 1, 1);
-    printf("\n DEBUG: displayAnomlayMap() opend \n");
-    for (size_t xPtchIdx = 0; xPtchIdx < nPatches.width; xPtchIdx++)
-    {
-        for (size_t yPtchIdx = 0; yPtchIdx < nPatches.height; yPtchIdx++)
-        {
-            ptchIdx = (yPtchIdx * nPatches.width) + xPtchIdx;
-            int counter = 0;
-            for (size_t y = 0; y < patchHeight; y++)
-            {
-                for (size_t x = 0; x < patchWidth; x++)
-                {
-                    vecIdx = x + (y * patchWidth) + (nPtchPixels * ptchIdx);
-                    xImxIdx = x + (xPtchIdx * patchWidth);
-                    yImgIdx = y + (yPtchIdx * patchHeight);
-                    // ToDo anomalyMapImg.atXYZC(xImxIdx, yImgIdx, 0, 0) = anomalyMap[vecIdx];
-                }
-            }
-        }
-    }
 
-    printf("\n DEBUG: displayAnomlayMap() closed \n");
-}
+std::vector<uint8_t> decode_bmp(const uint8_t* iInput, int iRow_size, int iWidth,
+    int iHeight, int iChannels, bool bTop_down) {
+    std::vector<uint8_t> iOutput(iHeight * iWidth * iChannels);
+    for (int i = 0; i < iHeight; i++) {
+        int iSrc_pos;
+        int iDst_pos;
 
-std::vector<uint8_t> decode_bmp(const uint8_t* input, int row_size, int width,
-    int height, int channels, bool top_down) {
-    std::vector<uint8_t> output(height * width * channels);
-    for (int i = 0; i < height; i++) {
-        int src_pos;
-        int dst_pos;
-
-        for (int j = 0; j < width; j++) {
-            if (!top_down) {
-                src_pos = ((height - 1 - i) * row_size) + j * channels;
+        for (int j = 0; j < iWidth; j++) {
+            if (!bTop_down) {
+                iSrc_pos = ((iHeight - 1 - i) * iRow_size) + j * iChannels;
             }
             else {
-                src_pos = i * row_size + j * channels;
+                iSrc_pos = i * iRow_size + j * iChannels;
             }
 
-            dst_pos = (i * width + j) * channels;
+            iDst_pos = (i * iWidth + j) * iChannels;
 
-            switch (channels) {
+            switch (iChannels) {
             case 1:
-                output[dst_pos] = input[src_pos];
+                iOutput[iDst_pos] = iInput[iSrc_pos];
                 break;
             case 3:
                 // BGR -> RGB
-                output[dst_pos] = input[src_pos + 2];
-                output[dst_pos + 1] = input[src_pos + 1];
-                output[dst_pos + 2] = input[src_pos];
+                iOutput[iDst_pos] = iInput[iSrc_pos + 2];
+                iOutput[iDst_pos + 1] = iInput[iSrc_pos + 1];
+                iOutput[iDst_pos + 2] = iInput[iSrc_pos];
                 break;
             case 4:
                 // BGRA -> RGBA
-                output[dst_pos] = input[src_pos + 2];
-                output[dst_pos + 1] = input[src_pos + 1];
-                output[dst_pos + 2] = input[src_pos];
-                output[dst_pos + 3] = input[src_pos + 3];
+                iOutput[iDst_pos] = iInput[iSrc_pos + 2];
+                iOutput[iDst_pos + 1] = iInput[iSrc_pos + 1];
+                iOutput[iDst_pos + 2] = iInput[iSrc_pos];
+                iOutput[iDst_pos + 3] = iInput[iSrc_pos + 3];
                 break;
             default:
-                std::cout << "Unexpected number of channels: " << channels << std::endl;
+                std::cout << "Unexpected number of channels: " << iChannels << std::endl;
                 break;
             }
         }
     }
-    return output;
+    return iOutput;
 }
 
-std::vector<uint8_t> read_bmp(const std::string& input_bmp_name, int* width,
-    int* height, int* channels) {
-    int begin, end;
-
-    std::ifstream file(input_bmp_name, std::ios::in | std::ios::binary);
+std::vector<uint8_t> read_bmp(const std::string& sInput_bmp_name, 
+                              int* iWidth,
+                              int* iHeight, int* channels) 
+{
+    int iBegin, iEnd;
+    std::ifstream file(sInput_bmp_name, std::ios::in | std::ios::binary);
     if (!file) {
-        std::cout << "input file " << input_bmp_name << " not found" << std::endl;
+        std::cout << "input file " << sInput_bmp_name << " not found" << std::endl;
         exit(-1);
     }
 
-    begin = file.tellg();
+    iBegin = file.tellg();
     file.seekg(0, std::ios::end);
-    end = file.tellg();
-    size_t len = end - begin;
+    iEnd = file.tellg();
+    size_t len = iEnd - iBegin;
 
     std::cout << "len: " << len << std::endl;
 
-    std::vector<uint8_t> img_bytes(len);
+    std::vector<uint8_t> iImg_bytes(len);
     file.seekg(0, std::ios::beg);
-    file.read(reinterpret_cast<char*>(img_bytes.data()), len);
-    const int32_t header_size =
-        *(reinterpret_cast<const int32_t*>(img_bytes.data() + 10));
-    *width = *(reinterpret_cast<const int32_t*>(img_bytes.data() + 18));
-    *height = *(reinterpret_cast<const int32_t*>(img_bytes.data() + 22));
-    const int32_t bpp =
-        *(reinterpret_cast<const int32_t*>(img_bytes.data() + 28));
-    *channels = bpp / 8;
+    file.read(reinterpret_cast<char*>(iImg_bytes.data()), len);
+    const int32_t iHeader_size =
+        *(reinterpret_cast<const int32_t*>(iImg_bytes.data() + 10));
+    *iWidth = *(reinterpret_cast<const int32_t*>(iImg_bytes.data() + 18));
+    *iHeight = *(reinterpret_cast<const int32_t*>(iImg_bytes.data() + 22));
+    const int32_t iBpp =
+        *(reinterpret_cast<const int32_t*>(iImg_bytes.data() + 28));
+    *channels = iBpp / 8;
 
-    std::cout << "width, height, channels: " << *width << ", " << *height
+    std::cout << "width, height, channels: " << *iWidth << ", " << *iHeight
         << ", " << *channels << std::endl;
 
     // there may be padding bytes when the width is not a multiple of 4 bytes
     // 8 * channels == bits per pixel
-    const int row_size = (8 * *channels * *width + 31) / 32 * 4;
+    const int iRow_size = (8 * *channels * *iWidth + 31) / 32 * 4;
 
     // if height is negative, data layout is top down
     // otherwise, it's bottom up
-    bool top_down = (*height < 0);
+    bool bTop_down = (*iHeight < 0);
 
     // Decode image, allocating tensor once the image size is known
-    const uint8_t* bmp_pixels = &img_bytes[header_size];
-    return decode_bmp(bmp_pixels, row_size, *width, abs(*height), *channels,
-        top_down);
-}
-
-void compareCImgAndVector(CImg<float> imageC, std::vector<uint8_t> image)
-{
-    std::vector<float> floatImage;
-    for (uint8_t& pixel : image)
-    {
-        floatImage.push_back(float(pixel));
-    }
-    
-    int y = 131;
-    int x = 221;
-    std::cout << "(" << y << "," << x << ") ="
-              << " R" << (int)imageC(x, y, 0, 0)
-              << " G" << (int)imageC(x, y, 0, 1)
-              << " B" << (int)imageC(x, y, 0, 2);
-
-    std::cout << " compare: R" << getXYC(floatImage, x, y, 0, INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH, INPUT_IMAGE_CHANNELS)
-        << " G" << getXYC(floatImage, x, y, 1, INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH, INPUT_IMAGE_CHANNELS)
-        << " B" << getXYC(floatImage, x, y, 2, INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH, INPUT_IMAGE_CHANNELS) << std::endl;
-
+    const uint8_t* iBmp_pixels = &iImg_bytes[iHeader_size];
+    return decode_bmp(iBmp_pixels, iRow_size, *iWidth, abs(*iHeight), *channels,
+        bTop_down);
 }
 
 
@@ -902,45 +793,44 @@ int main()
 {
     auto mainStartTime = std::chrono::steady_clock::now();
     // 1. load Image
-    CImg<float> imageC = CImg<float>(INPUT_IMAGE_PATH_C);
-    std::vector<uint8_t> image = read_bmp(INPUT_IMAGE_PATH, &INPUT_IMAGE_WIDTH, &INPUT_IMAGE_HEIGHT, &INPUT_IMAGE_CHANNELS);
-    twoDImgSize imgSize{INPUT_IMAGE_HEIGHT, INPUT_IMAGE_WIDTH }; // swapped imange dimensions
+    std::vector<uint8_t> iImage = read_bmp(cINPUT_IMAGE_PATH, &iINPUT_IMAGE_WIDTH, &iINPUT_IMAGE_HEIGHT, &iINPUT_IMAGE_CHANNELS);
+    twoDImgSize iImgSize{iINPUT_IMAGE_HEIGHT, iINPUT_IMAGE_WIDTH }; // swapped imange dimensions
     
-
+    
     // 2. Preprocess the image
-    twoDImgSize patchSize{ PATCH_HEIGHT, PATCH_WIDTH };
-    twoDImgSize nPatches;
+    twoDImgSize iPatchSize{ iPATCH_HEIGHT, iPATCH_WIDTH };
+    twoDImgSize iNPatches;
     
-    std::vector<float> floatImage = mobileNetPreprocessing(image);
-    calcNumOfPatches(imgSize, patchSize, nPatches);
-    std::vector<std::vector<float>> imagePatches(nPatches.width * nPatches.height); // initialize the vector of patches with the number of patches(=nPatches.width * nPatches.height)
-    imageToPatches(floatImage, imgSize, nPatches, patchSize, imagePatches);
+    std::vector<uint8_t> iPreProcessedImage = mobileNetPreprocessing(iImage);
+    calcNumOfPatches(iImgSize, iPatchSize, iNPatches);
+    std::vector<std::vector<uint8_t>> iImagePatches(iNPatches.iWidth * iNPatches.iHeight); // initialize the vector of patches with the number of patches(=nPatches.width * nPatches.height)
+    imageToPatches(iPreProcessedImage, iImgSize, iNPatches, iPatchSize, iImagePatches);
        
 
     // 3. load coreset and fmaps
-    std::vector<std::vector<Eigen::MatrixXf>> coresets;
-    std::vector<Eigen::MatrixXf> fMaps;
-    std::vector<float> resultScalers;
-    std::vector<int> layerFeatures = { N_FEATURES_L5, N_FEATURES_L6 };
+    std::vector<std::vector<Eigen::MatrixXf>> fCoresets;
+    std::vector<Eigen::MatrixXi> iFMaps;
+    std::vector<float> iResultScalers;
+    std::vector<uint8_t> iLayerFeatures = { iN_FEATURES_L5, iN_FEATURES_L6 };
 
-    for (const auto& nFeatures : layerFeatures)  // initialize coreset and fmpas
+    for (const auto& nFeatures : iLayerFeatures)  // initialize coreset and fmpas
     {
-        fMaps.push_back(Eigen::MatrixXf::Zero(N_PIXELS, nFeatures));
-        std::vector<Eigen::MatrixXf> coreset;
-        for (size_t i = 0; i < N_CORESET_SAMPLES; i++)
+        iFMaps.push_back(Eigen::MatrixXi::Zero(iN_PIXELS, nFeatures));
+        std::vector<Eigen::MatrixXf> fCoreset;
+        for (size_t i = 0; i < iN_CORESET_SAMPLES; i++)
         {
-            coreset.push_back(Eigen::MatrixXf::Zero(N_PIXELS, nFeatures));
+            fCoreset.push_back(Eigen::MatrixXf::Zero(iN_PIXELS, nFeatures));
         }
-        coresets.push_back(coreset);
+        fCoresets.push_back(fCoreset);
     }
-    loadTfLiteModel(coresets, fMaps, resultScalers, TFLITE_MODEL_PATH, imagePatches);
+    loadTfLiteModel(fCoresets, iFMaps, iResultScalers, iImagePatches);
 
-
-    // 4. calculate Anomaly Score and display the anomalyMap
-    float anomalyScore = -1.0;
-    Eigen::VectorXf anomalyMap(N_PIXELS);
-    getAnomalyScore(coresets, fMaps, resultScalers, anomalyScore, anomalyMap, false);
-    std::cout << "anomalyScore: " << anomalyScore << std::endl;
+    return 0;
+    /*// 4. calculate Anomaly Score and display the anomalyMap
+    float fAnomalyScore = -1.0;
+    Eigen::VectorXf fAnomalyMap(iN_PIXELS);
+    getAnomalyScore(fCoresets, iFMaps, iResultScalers, fAnomalyScore, fAnomalyMap, false);
+    std::cout << "anomalyScore: " << fAnomalyScore << std::endl;
     //displayAnomlayMap(anomalyMap, nPatches);
 
     auto mainEndTime = std::chrono::steady_clock::now();
@@ -948,6 +838,7 @@ int main()
         << std::chrono::duration_cast<std::chrono::microseconds>(mainEndTime - mainStartTime).count() << " µs" << std::endl;
 
     return 0;
+    */
 }
 
 /*
